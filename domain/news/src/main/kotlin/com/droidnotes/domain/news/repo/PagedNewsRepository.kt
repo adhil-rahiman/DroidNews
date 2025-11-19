@@ -10,5 +10,5 @@ interface PagedNewsRepository {
     fun topHeadlines(category: Category? = null): Flow<PagingData<Article>>
     fun search(query: String): Flow<PagingData<Article>>
     fun bookmarks(): Flow<PagingData<Article>>
-    suspend fun toggleBookmark(id: String): AppResult<Unit>
+    suspend fun toggleBookmark(article: Article): AppResult<Unit>
 }

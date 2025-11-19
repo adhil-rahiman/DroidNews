@@ -29,7 +29,7 @@ class PagedNewsRepositoryImpl @Inject constructor(
         return pagingDataSource.getBookmarkedArticles()
     }
 
-    override suspend fun toggleBookmark(id: String): AppResult<Unit> {
-        return localDataSource.toggleBookmark(id)
+    override suspend fun toggleBookmark(article: Article): AppResult<Unit> {
+        return localDataSource.toggleBookmark(article)
     }
 }

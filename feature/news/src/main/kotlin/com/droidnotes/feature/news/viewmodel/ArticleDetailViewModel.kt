@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.droidnotes.common.AppResult
+import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.repo.NewsRepository
 import com.droidnotes.domain.news.usecase.ToggleBookmark
 import com.droidnotes.feature.news.ui.ArticleDetailUiState
@@ -31,17 +32,15 @@ class ArticleDetailViewModel @Inject constructor(
         loadArticle()
     }
 
-    fun toggleBookmark() {
+    fun toggleBookmark(article: Article) {
         val currentState = _uiState.value
         if (currentState is ArticleDetailUiState.Success) {
             viewModelScope.launch {
-                when (toggleBookmarkUseCase(articleId)) {
+                when (toggleBookmarkUseCase(article)) {
                     is AppResult.Success -> {
-                        // Reload article to get updated bookmark status
                         loadArticle()
                     }
                     is AppResult.Error -> {
-                        // Could show a snackbar or toast here
                     }
                 }
             }

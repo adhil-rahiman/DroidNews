@@ -75,9 +75,6 @@ class NewsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun toggleBookmark(id: String): AppResult<Unit> =
-        localDataSource.toggleBookmark(id)
-
     override suspend fun bookmarks(): AppResult<List<Article>> {
         return try {
             val articles = localDataSource.getBookmarkedArticles().first()

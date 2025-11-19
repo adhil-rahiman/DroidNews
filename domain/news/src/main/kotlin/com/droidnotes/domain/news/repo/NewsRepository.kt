@@ -8,6 +8,5 @@ interface NewsRepository {
     suspend fun topHeadlines(category: Category? = null, page: Int = 1): AppResult<List<Article>>
     suspend fun search(query: String, page: Int = 1): AppResult<List<Article>>
     suspend fun getArticle(id: String): AppResult<Article>
-    suspend fun toggleBookmark(id: String): AppResult<Unit>
     suspend fun bookmarks(): AppResult<List<Article>>
 }

@@ -8,6 +8,7 @@ import com.droidnotes.domain.news.repo.PagedNewsRepository
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.usecase.ToggleBookmark
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val pagedNewsRepository: PagedNewsRepository,
@@ -46,9 +47,9 @@ class SearchViewModel @Inject constructor(
         _searchQuery.value = query
     }
 
-    fun toggleBookmark(articleId: String) {
+    fun toggleBookmark(article: Article) {
         viewModelScope.launch {
-            toggleBookmarkUseCase(articleId)
+            toggleBookmarkUseCase(article)
         }
     }
 }

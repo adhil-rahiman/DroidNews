@@ -17,6 +17,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,9 +43,13 @@ import java.time.format.DateTimeFormatter
 fun ArticleCard(
     article: Article,
     onArticleClick: (String) -> Unit,
-    onBookmarkClick: (String) -> Unit,
+    onBookmarkClick: (Article) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isBookmarked by remember(article.id, article.isBookmarked) {
+        mutableStateOf(article.isBookmarked) 
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -111,14 +119,19 @@ fun ArticleCard(
             }
 
             // Bookmark button
-            IconButton(onClick = { onBookmarkClick(article.id) }) {
+            IconButton(
+                onClick = { 
+                    isBookmarked = !isBookmarked
+                    onBookmarkClick(article)
+                }
+            ) {
                 Icon(
                     painter = painterResource(
-                        if (article.isBookmarked) R.drawable.ic_bookmark_filled
+                        if (isBookmarked) R.drawable.ic_bookmark_filled
                         else R.drawable.ic_bookmark_outline
                     ),
-                    contentDescription = if (article.isBookmarked) "Remove bookmark" else "Add bookmark",
-                    tint = if (article.isBookmarked) MaterialTheme.colorScheme.primary
+                    contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
+                    tint = if (isBookmarked) MaterialTheme.colorScheme.primary
                            else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

@@ -70,7 +70,7 @@ fun ArticleDetailScreen(
             if (uiState is ArticleDetailUiState.Success) {
                 val article = (uiState as ArticleDetailUiState.Success).article
                 FloatingActionButton(onClick = {
-                    viewModel.toggleBookmark()
+                    viewModel.toggleBookmark(article)
                     onBookmarkClick()
                 }) {
                     Icon(

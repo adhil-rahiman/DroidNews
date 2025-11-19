@@ -10,7 +10,6 @@ import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -77,20 +76,20 @@ class NewsLocalDataSourceImpl @Inject constructor(
             .map { entities -> entities.map { it.toDomain(isBookmarked = true) } }
     }
 
-    override suspend fun toggleBookmark(id: String): AppResult<Unit> = withContext(ioDispatcher) {
+    override suspend fun toggleBookmark(article: Article): AppResult<Unit> = withContext(ioDispatcher) {
         try {
-            val isCurrentlyBookmarked = bookmarkDao.isBookmarked(id)
+            val isCurrentlyBookmarked = bookmarkDao.isBookmarked(article.id)
+            
             if (isCurrentlyBookmarked) {
-                bookmarkDao.deleteBookmark(id)
+                bookmarkDao.deleteBookmark(article.id)
             } else {
-                // Ensure article exists in database before bookmarking
-                val article = articleDao.getArticleById(id)
-                if (article != null) {
-                    bookmarkDao.insertBookmark(BookmarkEntity(id))
-                } else {
-                    return@withContext AppResult.Error(Exception("Article not found in cache"))
+                val existingArticle = articleDao.getArticleById(article.id)
+                if (existingArticle == null) {
+                    articleDao.insertArticle(article.toEntity())
                 }
+                bookmarkDao.insertBookmark(BookmarkEntity(article.id))
             }
+            
             AppResult.Success(Unit)
         } catch (throwable: Throwable) {
             AppResult.Error(throwable)

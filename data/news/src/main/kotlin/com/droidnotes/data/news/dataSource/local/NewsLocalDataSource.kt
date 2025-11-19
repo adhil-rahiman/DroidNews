@@ -11,6 +11,6 @@ interface NewsLocalDataSource {
     suspend fun getArticlesByQuery(query: String, page: Int = 1, pageSize: Int = 5): AppResult<List<Article>>
     suspend fun getArticleById(id: String): AppResult<Article?>
     fun getBookmarkedArticles(): Flow<List<Article>>
-    suspend fun toggleBookmark(id: String): AppResult<Unit>
+    suspend fun toggleBookmark(article: Article): AppResult<Unit>
     suspend fun clearExpiredCache(cacheDurationMs: Long = 24 * 60 * 60 * 1000) // 24 hours
 }

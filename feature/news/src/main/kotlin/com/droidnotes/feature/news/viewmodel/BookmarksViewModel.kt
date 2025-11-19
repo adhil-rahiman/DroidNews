@@ -22,9 +22,9 @@ class BookmarksViewModel @Inject constructor(
         .bookmarks()
         .cachedIn(viewModelScope)
 
-    fun toggleBookmark(articleId: String) {
+    fun toggleBookmark(article: Article) {
         viewModelScope.launch {
-            toggleBookmarkUseCase(articleId)
+            toggleBookmarkUseCase(article)
         }
     }
 }

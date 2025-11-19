@@ -167,7 +167,7 @@ private fun ArticlesPagingList(
                             ArticleCard(
                                 article = article,
                                 onArticleClick = onArticleClick,
-                                onBookmarkClick = { articleId -> viewModel.toggleBookmark(articleId) }
+                                onBookmarkClick = { viewModel.toggleBookmark(article) }
                             )
                         }
                     }

@@ -37,7 +37,6 @@ class FeedViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     init {
-        // Initialize with default category (null for all)
         selectCategory(null)
     }
 
@@ -45,9 +44,9 @@ class FeedViewModel @Inject constructor(
         _uiState.update { it.copy(selectedCategory = category) }
     }
 
-    fun toggleBookmark(articleId: String) {
+    fun toggleBookmark(article: Article) {
         viewModelScope.launch {
-            toggleBookmarkUseCase(articleId)
+            toggleBookmarkUseCase(article)
         }
     }
 }
