@@ -1,12 +1,12 @@
 package com.droidnotes.feature.news.ui.feed
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -14,10 +14,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -25,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
@@ -43,9 +42,6 @@ fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val pullToRefreshState = rememberPullToRefreshState()
-    
-    var refreshCallback: (() -> Unit)? = null
 
     Scaffold(
         topBar = {
@@ -68,31 +64,23 @@ fun FeedScreen(
             )
         }
     ) { padding ->
-        PullToRefreshBox(
-            state = pullToRefreshState,
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { 
-                viewModel.setRefreshing(true)
-                refreshCallback?.invoke()
-            },
-            modifier = Modifier.padding(padding)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                CategoryChips(
-                    categories = Category.entries,
-                    selectedCategory = uiState.selectedCategory,
-                    onCategorySelected = { viewModel.selectCategory(it) },
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+            CategoryChips(
+                categories = Category.entries,
+                selectedCategory = uiState.selectedCategory,
+                onCategorySelected = { viewModel.selectCategory(it) },
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
 
-                ArticlesPagingList(
-                    viewModel = viewModel,
-                    onArticleClick = onArticleClick,
-                    onRefreshRequested = { callback -> 
-                        refreshCallback = callback
-                    }
-                )
-            }
+            ArticlesPagingList(
+                viewModel = viewModel,
+                uiState = uiState,
+                onArticleClick = onArticleClick
+            )
         }
     }
 }
@@ -100,36 +88,43 @@ fun FeedScreen(
 @Composable
 private fun ArticlesPagingList(
     viewModel: FeedViewModel,
-    onArticleClick: (String) -> Unit,
-    onRefreshRequested: (() -> Unit) -> Unit
+    uiState: com.droidnotes.feature.news.ui.FeedUiState,
+    onArticleClick: (String) -> Unit
 ) {
     val articlesPagingItems = viewModel.articlesPagingFlow.collectAsLazyPagingItems()
+    val listState = rememberLazyListState()
 
-    SideEffect {
-        Log.d("TestLogs", "articlesPagingItems: ${articlesPagingItems.itemCount}")
+    LaunchedEffect(uiState.selectedCategory) {
+        articlesPagingItems.refresh()
+        listState.scrollToItem(0)
     }
 
-    // Expose refresh function to parent
-    LaunchedEffect(Unit) {
-        onRefreshRequested { articlesPagingItems.refresh() }
-    }
+    val isRefreshing = articlesPagingItems.loadState.refresh is LoadState.Loading
 
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = { articlesPagingItems.refresh() },
+        modifier = Modifier.fillMaxSize()
     ) {
-        items(
-            count = articlesPagingItems.itemCount,
-            key = articlesPagingItems.itemKey { it.id },
-            contentType = articlesPagingItems.itemContentType { "article" }
-        ) { index ->
-            val article = articlesPagingItems[index]
-            if (article != null) {
-                ArticleCard(
-                    article = article,
-                    onArticleClick = onArticleClick,
-                    onBookmarkClick = { articleId -> viewModel.toggleBookmark(articleId) }
-                )
+        LazyColumn(
+            state = listState,
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(
+                count = articlesPagingItems.itemCount,
+                key = articlesPagingItems.itemKey { it.id },
+                contentType = articlesPagingItems.itemContentType { "article" }
+            ) { index ->
+                val article = articlesPagingItems[index]
+                if (article != null) {
+                    ArticleCard(
+                        article = article,
+                        onArticleClick = onArticleClick,
+                        onBookmarkClick = { articleId -> viewModel.toggleBookmark(articleId) }
+                    )
+                }
             }
         }
     }

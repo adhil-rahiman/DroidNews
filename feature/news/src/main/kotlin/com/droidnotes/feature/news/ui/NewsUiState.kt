@@ -5,7 +5,7 @@ import com.droidnotes.domain.news.model.Category
 
 sealed class NewsUiState {
     data object Loading : NewsUiState()
-    data class Success(val data: List<Article>) : NewsUiState()
+    data object Success : NewsUiState()
     data class Error(val message: String) : NewsUiState()
 }
 
@@ -16,9 +16,7 @@ sealed class ArticleDetailUiState {
 }
 
 data class FeedUiState(
-    val selectedCategory: Category? = null,
-    val articlesState: NewsUiState = NewsUiState.Loading,
-    val isRefreshing: Boolean = false
+    val selectedCategory: Category? = null
 )
 
 data class SearchUiState(

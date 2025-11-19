@@ -1,11 +1,9 @@
 package com.droidnotes.feature.news.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import coil3.util.CoilUtils.result
 import com.droidnotes.domain.news.NewsRepository
 import com.droidnotes.domain.news.PagedNewsRepository
 import com.droidnotes.domain.news.model.Article
@@ -34,7 +32,6 @@ class FeedViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val articlesPagingFlow: Flow<PagingData<Article>> = _uiState
         .flatMapLatest { state ->
-            Log.d("TestLogs", "articlesPagingFlow: state: ${state}")
             pagedNewsRepository.topHeadlines(state.selectedCategory)
         }
         .cachedIn(viewModelScope)
@@ -46,17 +43,6 @@ class FeedViewModel @Inject constructor(
 
     fun selectCategory(category: Category?) {
         _uiState.update { it.copy(selectedCategory = category) }
-    }
-
-    fun setRefreshing(isRefreshing: Boolean) {
-        _uiState.update { it.copy(isRefreshing = isRefreshing) }
-        if (!isRefreshing) {
-            // Reset after a short delay to allow UI to show the refresh indicator
-            viewModelScope.launch {
-                kotlinx.coroutines.delay(500)
-                _uiState.update { it.copy(isRefreshing = false) }
-            }
-        }
     }
 
     fun toggleBookmark(articleId: String) {
