@@ -20,7 +20,6 @@ fun Article.toEntity(
         sourceId = source.id,
         sourceName = source.name,
         publishedAt = publishedAt.toEpochMilli(),
-        isBookmarked = isBookmarked,
         category = category,
         query = query,
         page = page,
@@ -28,7 +27,7 @@ fun Article.toEntity(
     )
 }
 
-fun ArticleEntity.toDomain(): Article {
+fun ArticleEntity.toDomain(isBookmarked: Boolean = false): Article {
     return Article(
         id = id,
         title = title,

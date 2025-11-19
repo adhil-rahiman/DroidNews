@@ -1,6 +1,8 @@
 package com.droidnotes.data.news.repo
 
 import androidx.paging.PagingData
+import com.droidnotes.common.AppResult
+import com.droidnotes.data.news.dataSource.local.NewsLocalDataSource
 import com.droidnotes.data.news.dataSource.paging.NewsPagingDataSource
 import com.droidnotes.domain.news.repo.PagedNewsRepository
 import com.droidnotes.domain.news.model.Article
@@ -11,7 +13,8 @@ import javax.inject.Singleton
 
 @Singleton
 class PagedNewsRepositoryImpl @Inject constructor(
-    private val pagingDataSource: NewsPagingDataSource
+    private val pagingDataSource: NewsPagingDataSource,
+    private val localDataSource: NewsLocalDataSource
 ) : PagedNewsRepository {
 
     override fun topHeadlines(category: Category?): Flow<PagingData<Article>> {
@@ -24,5 +27,9 @@ class PagedNewsRepositoryImpl @Inject constructor(
 
     override fun bookmarks(): Flow<PagingData<Article>> {
         return pagingDataSource.getBookmarkedArticles()
+    }
+
+    override suspend fun toggleBookmark(id: String): AppResult<Unit> {
+        return localDataSource.toggleBookmark(id)
     }
 }

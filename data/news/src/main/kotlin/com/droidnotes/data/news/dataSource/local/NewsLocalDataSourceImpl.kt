@@ -2,18 +2,22 @@ package com.droidnotes.data.news.dataSource.local
 
 import com.droidnotes.common.AppResult
 import com.droidnotes.core.database.dao.ArticleDao
+import com.droidnotes.core.database.dao.BookmarkDao
+import com.droidnotes.core.database.model.BookmarkEntity
 import com.droidnotes.data.news.mapper.toDomain
 import com.droidnotes.data.news.mapper.toEntity
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class NewsLocalDataSourceImpl @Inject constructor(
     private val articleDao: ArticleDao,
+    private val bookmarkDao: BookmarkDao,
     private val ioDispatcher: CoroutineDispatcher
 ) : NewsLocalDataSource {
 
@@ -60,7 +64,8 @@ class NewsLocalDataSourceImpl @Inject constructor(
     override suspend fun getArticleById(id: String): AppResult<Article?> = withContext(ioDispatcher) {
         try {
             val entity = articleDao.getArticleById(id)
-            val article = entity?.toDomain()
+            val isBookmarked = entity?.let { bookmarkDao.isBookmarked(it.id) } ?: false
+            val article = entity?.toDomain(isBookmarked)
             AppResult.Success(article)
         } catch (throwable: Throwable) {
             AppResult.Error(throwable)
@@ -68,20 +73,25 @@ class NewsLocalDataSourceImpl @Inject constructor(
     }
 
     override fun getBookmarkedArticles(): Flow<List<Article>> {
-        return articleDao.getBookmarkedArticles()
-            .map { entities -> entities.map { it.toDomain() } }
+        return bookmarkDao.getBookmarkedArticles()
+            .map { entities -> entities.map { it.toDomain(isBookmarked = true) } }
     }
 
     override suspend fun toggleBookmark(id: String): AppResult<Unit> = withContext(ioDispatcher) {
         try {
-            val currentEntity = articleDao.getArticleById(id)
-            if (currentEntity != null) {
-                val updatedEntity = currentEntity.copy(isBookmarked = !currentEntity.isBookmarked)
-                articleDao.updateArticle(updatedEntity)
-                AppResult.Success(Unit)
+            val isCurrentlyBookmarked = bookmarkDao.isBookmarked(id)
+            if (isCurrentlyBookmarked) {
+                bookmarkDao.deleteBookmark(id)
             } else {
-                AppResult.Error(Exception("Article not found"))
+                // Ensure article exists in database before bookmarking
+                val article = articleDao.getArticleById(id)
+                if (article != null) {
+                    bookmarkDao.insertBookmark(BookmarkEntity(id))
+                } else {
+                    return@withContext AppResult.Error(Exception("Article not found in cache"))
+                }
             }
+            AppResult.Success(Unit)
         } catch (throwable: Throwable) {
             AppResult.Error(throwable)
         }

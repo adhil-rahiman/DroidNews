@@ -17,7 +17,6 @@ data class ArticleEntity(
     val sourceId: String?,
     val sourceName: String,
     val publishedAt: Long, // Store as timestamp
-    val isBookmarked: Boolean = false,
     val category: String? = null, // For caching categorized articles
     val query: String? = null, // For caching search results
     val page: Int = 1, // For pagination

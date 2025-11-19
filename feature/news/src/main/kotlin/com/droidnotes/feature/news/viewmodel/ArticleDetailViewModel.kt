@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.droidnotes.common.AppResult
 import com.droidnotes.domain.news.repo.NewsRepository
+import com.droidnotes.domain.news.usecase.ToggleBookmark
 import com.droidnotes.feature.news.ui.ArticleDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ArticleDetailViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
+    private val toggleBookmarkUseCase: ToggleBookmark,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -33,7 +35,7 @@ class ArticleDetailViewModel @Inject constructor(
         val currentState = _uiState.value
         if (currentState is ArticleDetailUiState.Success) {
             viewModelScope.launch {
-                when (newsRepository.toggleBookmark(articleId)) {
+                when (toggleBookmarkUseCase(articleId)) {
                     is AppResult.Success -> {
                         // Reload article to get updated bookmark status
                         loadArticle()

@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.droidnotes.domain.news.repo.NewsRepository
 import com.droidnotes.domain.news.repo.PagedNewsRepository
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
+import com.droidnotes.domain.news.usecase.ToggleBookmark
 import com.droidnotes.feature.news.ui.FeedUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,8 +22,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
-    private val newsRepository: NewsRepository,
-    private val pagedNewsRepository: PagedNewsRepository
+    private val pagedNewsRepository: PagedNewsRepository,
+    private val toggleBookmarkUseCase: ToggleBookmark
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FeedUiState())
@@ -47,7 +47,7 @@ class FeedViewModel @Inject constructor(
 
     fun toggleBookmark(articleId: String) {
         viewModelScope.launch {
-            newsRepository.toggleBookmark(articleId)
+            toggleBookmarkUseCase(articleId)
         }
     }
 }

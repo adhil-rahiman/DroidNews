@@ -39,18 +39,6 @@ interface ArticleDao {
     @Query("SELECT * FROM articles WHERE `query` = :query ORDER BY publishedAt DESC")
     fun getPagedArticlesByQuery(query: String): PagingSource<Int, ArticleEntity>
 
-    @Query("SELECT * FROM articles WHERE isBookmarked = 1 ORDER BY publishedAt DESC")
-    fun getBookmarkedArticles(): Flow<List<ArticleEntity>>
-
-    @Query("SELECT * FROM articles WHERE isBookmarked = 1 ORDER BY publishedAt DESC")
-    fun getBookmarkedArticlesPaging(): PagingSource<Int, ArticleEntity>
-
-    @Query("SELECT * FROM articles WHERE isBookmarked = 1 ORDER BY publishedAt DESC")
-    suspend fun getBookmarkedArticlesSnapshot(): List<ArticleEntity>
-
-    @Query("UPDATE articles SET isBookmarked = :isBookmarked WHERE id = :id")
-    suspend fun updateBookmarkStatus(id: String, isBookmarked: Boolean)
-
     @Query("DELETE FROM articles WHERE timestamp < :timestamp")
     suspend fun deleteExpiredArticles(timestamp: Long)
 

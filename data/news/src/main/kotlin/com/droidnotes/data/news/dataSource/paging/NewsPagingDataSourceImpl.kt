@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.droidnotes.core.database.dao.ArticleDao
+import com.droidnotes.core.database.dao.BookmarkDao
 import com.droidnotes.data.news.mapper.toDomain
 import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSource
 import com.droidnotes.domain.news.model.Article
@@ -13,12 +14,14 @@ import com.droidnotes.domain.news.model.Category
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
 class NewsPagingDataSourceImpl @Inject constructor(
     private val remoteDataSource: NewsRemoteDataSource,
     private val articleDao: ArticleDao,
+    private val bookmarkDao: BookmarkDao,
     private val ioDispatcher: CoroutineDispatcher
 ): NewsPagingDataSource {
 
@@ -44,7 +47,8 @@ class NewsPagingDataSourceImpl @Inject constructor(
             }
         ).flow.map { pagingData ->
             pagingData.map { entity ->
-                entity.toDomain()
+                val isBookmarked = runBlocking { bookmarkDao.isBookmarked(entity.id) }
+                entity.toDomain(isBookmarked)
             }
         }
     }
@@ -68,7 +72,8 @@ class NewsPagingDataSourceImpl @Inject constructor(
             }
         ).flow.map { pagingData ->
             pagingData.map { entity ->
-                entity.toDomain()
+                val isBookmarked = runBlocking { bookmarkDao.isBookmarked(entity.id) }
+                entity.toDomain(isBookmarked)
             }
         }
     }
@@ -80,11 +85,11 @@ class NewsPagingDataSourceImpl @Inject constructor(
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
-                articleDao.getBookmarkedArticlesPaging()
+                bookmarkDao.getBookmarkedArticlesPaging()
             }
         ).flow.map { pagingData ->
             pagingData.map { entity ->
-                entity.toDomain()
+                entity.toDomain(isBookmarked = true)
             }
         }
     }
