@@ -8,7 +8,7 @@ android {
     namespace = "com.droidnotes.core.ui"
     compileSdk = 36
 
-    defaultConfig { minSdk = 21 }
+    defaultConfig { minSdk = 23 }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

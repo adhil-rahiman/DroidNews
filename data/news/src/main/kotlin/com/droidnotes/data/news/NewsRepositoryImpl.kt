@@ -4,8 +4,9 @@ import com.droidnotes.common.AppResult
 import com.droidnotes.domain.news.NewsRepository
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
+import javax.inject.Inject
 
-class NewsRepositoryImpl : NewsRepository {
+class NewsRepositoryImpl @Inject constructor() : NewsRepository {
     override suspend fun topHeadlines(category: Category?, page: Int): AppResult<List<Article>> =
         AppResult.Success(emptyList())
 
