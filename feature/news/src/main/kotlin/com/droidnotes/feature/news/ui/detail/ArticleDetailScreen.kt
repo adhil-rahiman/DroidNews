@@ -1,5 +1,7 @@
 package com.droidnotes.feature.news.ui.detail
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,11 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -25,6 +30,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,6 +59,8 @@ fun ArticleDetailScreen(
     viewModel: ArticleDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    var showMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -62,6 +72,56 @@ fun ArticleDetailScreen(
                             painter = painterResource(R.drawable.ic_arrow_back),
                             contentDescription = "Back"
                         )
+                    }
+                },
+                actions = {
+                    if (uiState is ArticleDetailUiState.Success) {
+                        val article = (uiState as ArticleDetailUiState.Success).article
+
+                        IconButton(onClick = {
+                            val shareIntent = Intent.createChooser(
+                                Intent().apply {
+                                    action = Intent.ACTION_SEND
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        "${article.title}\n\n${article.url}"
+                                    )
+                                    type = "text/plain"
+                                },
+                                "Share article"
+                            )
+                            context.startActivity(shareIntent)
+                        }, modifier = Modifier.size(24.dp)) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_share),
+                                contentDescription = "Share"
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { showMenu = true },
+                            modifier = Modifier.size(34.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_more),
+                                contentDescription = "More options"
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Open in browser") },
+                                onClick = {
+                                    showMenu = false
+                                    val browserIntent =
+                                        Intent(Intent.ACTION_VIEW, Uri.parse(article.url))
+                                    context.startActivity(browserIntent)
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -95,6 +155,7 @@ fun ArticleDetailScreen(
                     CircularProgressIndicator()
                 }
             }
+
             is ArticleDetailUiState.Success -> {
                 val article = (uiState as ArticleDetailUiState.Success).article
                 ArticleContent(
@@ -102,6 +163,7 @@ fun ArticleDetailScreen(
                     modifier = Modifier.padding(padding)
                 )
             }
+
             is ArticleDetailUiState.Error -> {
                 val error = uiState as ArticleDetailUiState.Error
                 Box(
