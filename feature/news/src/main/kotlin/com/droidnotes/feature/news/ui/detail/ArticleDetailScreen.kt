@@ -218,8 +218,7 @@ private fun ArticleContent(
         )
 
         // Source and date
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
@@ -228,7 +227,7 @@ private fun ArticleContent(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = formatPublishedDate(article.publishedAt),
