@@ -1,4 +1,4 @@
-package com.droidnotes.domain.news
+package com.droidnotes.domain.news.repo
 
 import androidx.paging.PagingData
 import com.droidnotes.domain.news.model.Article

@@ -8,8 +8,8 @@ import com.droidnotes.data.news.dataSource.paging.NewsPagingDataSource
 import com.droidnotes.data.news.dataSource.paging.NewsPagingDataSourceImpl
 import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSource
 import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSourceImpl
-import com.droidnotes.domain.news.PagedNewsRepository
-import com.droidnotes.domain.news.NewsRepository
+import com.droidnotes.domain.news.repo.PagedNewsRepository
+import com.droidnotes.domain.news.repo.NewsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

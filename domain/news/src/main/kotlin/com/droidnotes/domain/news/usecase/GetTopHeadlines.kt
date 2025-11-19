@@ -1,6 +1,6 @@
 package com.droidnotes.domain.news.usecase
 
-import com.droidnotes.domain.news.NewsRepository
+import com.droidnotes.domain.news.repo.NewsRepository
 import com.droidnotes.domain.news.model.Category
 
 class GetTopHeadlines(private val repo: NewsRepository) {

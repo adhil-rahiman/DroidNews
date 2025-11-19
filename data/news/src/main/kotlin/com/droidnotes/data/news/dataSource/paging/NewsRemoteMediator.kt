@@ -34,7 +34,7 @@ class NewsRemoteMediator @Inject constructor(
         state: PagingState<Int, ArticleEntity>
     ): MediatorResult = withContext(ioDispatcher) {
         try {
-            // Rate limiting: ensure at least 1 second between API calls
+            // Rate limiting: ensure MIN_REQUEST_INTERVAL_MS between API calls
             val currentTime = System.currentTimeMillis()
             val timeSinceLastRequest = currentTime - lastRequestTime
             if (timeSinceLastRequest < MIN_REQUEST_INTERVAL_MS) {
@@ -102,7 +102,7 @@ class NewsRemoteMediator @Inject constructor(
     }
 
     companion object {
-        private const val MAX_PAGE = 10 // Limit pagination to prevent infinite scrolling
+        private const val MAX_PAGE = 100 // Limit maximum pages that can be loaded
         private const val CACHE_DURATION_MS = 24 * 60 * 60 * 1000L // 24 hours
         private const val MIN_REQUEST_INTERVAL_MS = 1000L // 1 second minimum between API calls
     }

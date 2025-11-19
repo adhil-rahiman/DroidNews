@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.droidnotes.common.AppResult
-import com.droidnotes.domain.news.NewsRepository
+import com.droidnotes.domain.news.repo.NewsRepository
 import com.droidnotes.feature.news.ui.ArticleDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

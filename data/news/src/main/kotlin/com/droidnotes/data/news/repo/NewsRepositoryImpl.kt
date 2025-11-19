@@ -3,7 +3,7 @@ package com.droidnotes.data.news.repo
 import com.droidnotes.common.AppResult
 import com.droidnotes.data.news.dataSource.local.NewsLocalDataSource
 import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSource
-import com.droidnotes.domain.news.NewsRepository
+import com.droidnotes.domain.news.repo.NewsRepository
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
 import kotlinx.coroutines.flow.first

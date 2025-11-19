@@ -11,7 +11,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.droidnotes.common.AppResult
-import com.droidnotes.domain.news.NewsRepository
+import com.droidnotes.domain.news.repo.NewsRepository
 import com.droidnotes.droidnews.MainActivity
 import com.droidnotes.droidnews.R
 import dagger.assisted.Assisted

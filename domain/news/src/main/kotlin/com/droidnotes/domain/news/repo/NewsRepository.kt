@@ -1,4 +1,4 @@
-package com.droidnotes.domain.news
+package com.droidnotes.domain.news.repo
 
 import com.droidnotes.common.AppResult
 import com.droidnotes.domain.news.model.Article

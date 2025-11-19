@@ -1,7 +1,7 @@
 package com.droidnotes.domain.news.usecase
 
 import com.droidnotes.common.AppResult
-import com.droidnotes.domain.news.NewsRepository
+import com.droidnotes.domain.news.repo.NewsRepository
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
 import com.droidnotes.domain.news.model.Source

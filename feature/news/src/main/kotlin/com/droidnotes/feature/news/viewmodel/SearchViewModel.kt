@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.droidnotes.domain.news.NewsRepository
-import com.droidnotes.domain.news.PagedNewsRepository
+import com.droidnotes.domain.news.repo.NewsRepository
+import com.droidnotes.domain.news.repo.PagedNewsRepository
 import com.droidnotes.domain.news.model.Article
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
