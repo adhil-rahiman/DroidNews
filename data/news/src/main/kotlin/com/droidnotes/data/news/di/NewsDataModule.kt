@@ -1,11 +1,13 @@
 package com.droidnotes.data.news.di
 
-import com.droidnotes.data.news.PagedNewsRepositoryImpl
-import com.droidnotes.data.news.NewsRepositoryImpl
-import com.droidnotes.data.news.local.NewsLocalDataSource
-import com.droidnotes.data.news.local.NewsLocalDataSourceImpl
-import com.droidnotes.data.news.remote.NewsRemoteDataSource
-import com.droidnotes.data.news.remote.NewsRemoteDataSourceImpl
+import com.droidnotes.data.news.repo.PagedNewsRepositoryImpl
+import com.droidnotes.data.news.repo.NewsRepositoryImpl
+import com.droidnotes.data.news.dataSource.local.NewsLocalDataSource
+import com.droidnotes.data.news.dataSource.local.NewsLocalDataSourceImpl
+import com.droidnotes.data.news.dataSource.paging.NewsPagingDataSource
+import com.droidnotes.data.news.dataSource.paging.NewsPagingDataSourceImpl
+import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSource
+import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSourceImpl
 import com.droidnotes.domain.news.PagedNewsRepository
 import com.droidnotes.domain.news.NewsRepository
 import dagger.Binds
@@ -35,6 +37,10 @@ interface NewsDataModule {
     @Binds
     @Singleton
     fun bindNewsLocalDataSource(impl: NewsLocalDataSourceImpl): NewsLocalDataSource
+
+    @Binds
+    @Singleton
+    fun bindNewsPagingDataSource(impl: NewsPagingDataSourceImpl): NewsPagingDataSource
 
     companion object {
         @Provides

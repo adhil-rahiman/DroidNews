@@ -1,7 +1,7 @@
-package com.droidnotes.data.news
+package com.droidnotes.data.news.repo
 
 import androidx.paging.PagingData
-import com.droidnotes.data.news.paging.NewsPagingDataSource
+import com.droidnotes.data.news.dataSource.paging.NewsPagingDataSource
 import com.droidnotes.domain.news.PagedNewsRepository
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category

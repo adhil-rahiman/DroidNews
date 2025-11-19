@@ -1,26 +1,16 @@
-package com.droidnotes.data.news.remote
+package com.droidnotes.data.news.dataSource.remote
 
 import com.droidnotes.common.AppResult
 import com.droidnotes.core.network.GNewsApi
 import com.droidnotes.core.network.mapper.toDomain
+import com.droidnotes.core.network.model.SearchResponse
+import com.droidnotes.core.network.model.TopHeadlinesResponse
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 import javax.inject.Inject
-
-interface NewsRemoteDataSource {
-    suspend fun getTopHeadlines(
-        category: Category? = null,
-        page: Int = 1
-    ): AppResult<List<Article>>
-
-    suspend fun searchArticles(
-        query: String,
-        page: Int = 1
-    ): AppResult<List<Article>>
-}
 
 class NewsRemoteDataSourceImpl @Inject constructor(
     private val api: GNewsApi,
@@ -61,11 +51,11 @@ class NewsRemoteDataSourceImpl @Inject constructor(
     private fun <T> handleApiResponse(response: Response<T>): AppResult<List<Article>> {
         return if (response.isSuccessful) {
             when (val body = response.body()) {
-                is com.droidnotes.core.network.model.TopHeadlinesResponse -> {
+                is TopHeadlinesResponse -> {
                     val articles = body.articles.map { it.toDomain() }
                     AppResult.Success(articles)
                 }
-                is com.droidnotes.core.network.model.SearchResponse -> {
+                is SearchResponse -> {
                     val articles = body.articles.map { it.toDomain() }
                     AppResult.Success(articles)
                 }

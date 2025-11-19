@@ -1,4 +1,4 @@
-package com.droidnotes.data.news.paging
+package com.droidnotes.data.news.dataSource.paging
 
 import android.util.Log
 import androidx.paging.ExperimentalPagingApi
@@ -9,9 +9,10 @@ import com.droidnotes.common.AppResult
 import com.droidnotes.core.database.dao.ArticleDao
 import com.droidnotes.core.database.model.ArticleEntity
 import com.droidnotes.data.news.mapper.toEntity
-import com.droidnotes.data.news.remote.NewsRemoteDataSource
+import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSource
 import com.droidnotes.domain.news.model.Category
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
@@ -37,7 +38,7 @@ class NewsRemoteMediator @Inject constructor(
             val currentTime = System.currentTimeMillis()
             val timeSinceLastRequest = currentTime - lastRequestTime
             if (timeSinceLastRequest < MIN_REQUEST_INTERVAL_MS) {
-                kotlinx.coroutines.delay(MIN_REQUEST_INTERVAL_MS - timeSinceLastRequest)
+                delay(MIN_REQUEST_INTERVAL_MS - timeSinceLastRequest)
             }
             lastRequestTime = System.currentTimeMillis()
 

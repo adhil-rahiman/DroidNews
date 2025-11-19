@@ -1,4 +1,4 @@
-package com.droidnotes.data.news.paging
+package com.droidnotes.data.news.dataSource.paging
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
@@ -6,23 +6,23 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.droidnotes.core.database.dao.ArticleDao
-import com.droidnotes.data.news.remote.NewsRemoteDataSource
+import com.droidnotes.data.news.mapper.toDomain
+import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSource
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import com.droidnotes.data.news.mapper.toDomain as toDomainArticle
 
 @OptIn(ExperimentalPagingApi::class)
-class NewsPagingDataSource @Inject constructor(
+class NewsPagingDataSourceImpl @Inject constructor(
     private val remoteDataSource: NewsRemoteDataSource,
     private val articleDao: ArticleDao,
     private val ioDispatcher: CoroutineDispatcher
-) {
+): NewsPagingDataSource {
 
-    fun getTopHeadlinesPager(category: Category? = null): Flow<PagingData<Article>> {
+    override fun getTopHeadlinesPager(category: Category?): Flow<PagingData<Article>> {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -44,12 +44,12 @@ class NewsPagingDataSource @Inject constructor(
             }
         ).flow.map { pagingData ->
             pagingData.map { entity ->
-                entity.toDomainArticle()
+                entity.toDomain()
             }
         }
     }
 
-    fun getSearchPager(query: String): Flow<PagingData<Article>> {
+    override fun getSearchPager(query: String): Flow<PagingData<Article>> {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -68,12 +68,12 @@ class NewsPagingDataSource @Inject constructor(
             }
         ).flow.map { pagingData ->
             pagingData.map { entity ->
-                entity.toDomainArticle()
+                entity.toDomain()
             }
         }
     }
 
-    fun getBookmarkedArticles(): Flow<PagingData<Article>> {
+    override fun getBookmarkedArticles(): Flow<PagingData<Article>> {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -84,7 +84,7 @@ class NewsPagingDataSource @Inject constructor(
             }
         ).flow.map { pagingData ->
             pagingData.map { entity ->
-                entity.toDomainArticle()
+                entity.toDomain()
             }
         }
     }
