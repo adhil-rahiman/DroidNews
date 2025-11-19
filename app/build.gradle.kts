@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "com.droidnotes.droidnews"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.droidnotes.droidnews"
@@ -32,6 +30,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -42,6 +41,7 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar)
     implementation(project(":core:ui"))
     implementation(project(":feature:news"))
     implementation(libs.androidx.core.ktx)

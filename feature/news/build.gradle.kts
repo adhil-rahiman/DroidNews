@@ -11,12 +11,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar)
     implementation(project(":domain:news"))
     implementation(project(":core:ui"))
     implementation(project(":common:kotlin"))
