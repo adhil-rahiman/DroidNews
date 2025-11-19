@@ -35,14 +35,11 @@ class ArticleDetailViewModel @Inject constructor(
     fun toggleBookmark(article: Article) {
         val currentState = _uiState.value
         if (currentState is ArticleDetailUiState.Success) {
+            val updatedArticle = currentState.article.copy(isBookmarked = !currentState.article.isBookmarked)
+            _uiState.update { ArticleDetailUiState.Success(updatedArticle) }
+            
             viewModelScope.launch {
-                when (toggleBookmarkUseCase(article)) {
-                    is AppResult.Success -> {
-                        loadArticle()
-                    }
-                    is AppResult.Error -> {
-                    }
-                }
+                toggleBookmarkUseCase(article)
             }
         }
     }
