@@ -12,10 +12,12 @@ android {
 
     defaultConfig {
         minSdk = 23
-        val API_BASE_URL: String = properties.getOrDefault("API_BASE_URL", "") as String
-        val NEWS_API_KEY: String = properties.getOrDefault("NEWS_API_KEY", "") as String
-        buildConfigField("String", "API_BASE_URL", API_BASE_URL)
-        buildConfigField("String", "NEWS_API_KEY", NEWS_API_KEY)
+
+        val apiBaseUrl = (project.findProperty("API_BASE_URL") as? String).orEmpty()
+        val newsApiKey = (project.findProperty("NEWS_API_KEY") as? String).orEmpty()
+
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        buildConfigField("String", "NEWS_API_KEY", "\"$newsApiKey\"")
     }
 
     compileOptions {

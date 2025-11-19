@@ -9,6 +9,6 @@ fun interface ApiKeyProvider {
 
 class BuildConfigApiKeyProvider @Inject constructor() : ApiKeyProvider {
     override fun getApiKey(): String? {
-        return BuildConfig.API_BASE_URL.ifEmpty { null }
+        return BuildConfig.NEWS_API_KEY.ifBlank { null }
     }
 }
