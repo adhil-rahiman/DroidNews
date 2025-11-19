@@ -6,7 +6,9 @@ import com.droidnotes.domain.news.model.Category
 
 interface NewsRepository {
     suspend fun topHeadlines(category: Category? = null, page: Int = 1): AppResult<List<Article>>
-    suspend fun search(query: String, page: Int = 1): AppResult<List<Article>>
     suspend fun getArticle(id: String): AppResult<Article>
-    suspend fun bookmarks(): AppResult<List<Article>>
+    suspend fun refreshNews(category: Category? = null, clearCache: Boolean = false): AppResult<List<Article>>
+    suspend fun refreshAllCategories(clearCache: Boolean = false): AppResult<Unit>
+
+    suspend fun clearExpiredCache(cacheDurationMs: Long): AppResult<Unit>
 }

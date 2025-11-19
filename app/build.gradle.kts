@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":feature:news"))
     implementation(project(":domain:news"))
+    implementation(project(":data:news"))
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

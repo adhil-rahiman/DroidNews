@@ -2,6 +2,7 @@ package com.droidnotes.droidnews.work
 
 import android.content.Context
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
@@ -18,16 +19,24 @@ class WorkManagerScheduler @Inject constructor(
 ) {
     private val workManager = WorkManager.getInstance(context)
 
-    fun scheduleNewsRefresh() {
+    fun scheduleNewsRefresh(
+        refreshIntervalMinutes: Long = WorkConfig.NEWS_REFRESH_INTERVAL_MINUTES,
+        cacheExpiryMinutes: Long = WorkConfig.CACHE_EXPIRY_MINUTES
+    ) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
+        val inputData = Data.Builder()
+            .putLong(NewsRefreshWorker.KEY_CACHE_EXPIRY_MINUTES, cacheExpiryMinutes)
+            .build()
+
         val refreshWork = PeriodicWorkRequestBuilder<NewsRefreshWorker>(
-            1, // Repeat interval
-            TimeUnit.HOURS
+            refreshIntervalMinutes,
+            TimeUnit.MINUTES
         )
             .setConstraints(constraints)
+            .setInputData(inputData)
             .build()
 
         workManager.enqueueUniquePeriodicWork(
@@ -37,14 +46,16 @@ class WorkManagerScheduler @Inject constructor(
         )
     }
 
-    fun scheduleBreakingNewsNotification() {
+    fun scheduleBreakingNewsNotification(
+        intervalHours: Long = WorkConfig.BREAKING_NEWS_INTERVAL_HOURS
+    ) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
         val notificationWork = PeriodicWorkRequestBuilder<BreakingNewsNotificationWorker>(
-            2, // Repeat interval
-            TimeUnit.HOURS
+            intervalHours,
+            TimeUnit.MINUTES
         )
             .setConstraints(constraints)
             .build()
@@ -54,18 +65,6 @@ class WorkManagerScheduler @Inject constructor(
             ExistingPeriodicWorkPolicy.UPDATE,
             notificationWork
         )
-    }
-
-    fun triggerImmediateNewsRefresh() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        val refreshWork = OneTimeWorkRequestBuilder<NewsRefreshWorker>()
-            .setConstraints(constraints)
-            .build()
-
-        workManager.enqueue(refreshWork)
     }
 
     fun cancelAllWork() {

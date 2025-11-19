@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:name=".DroidNewsApp"
@@ -13,7 +14,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DroidNews">
+        android:theme="@style/Theme.DroidNews"
+        tools:ignore="UnusedAttribute">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
