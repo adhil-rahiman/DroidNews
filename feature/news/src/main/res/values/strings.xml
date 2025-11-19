@@ -1,3 +1,4 @@
 <resources>
+    <string name="app_name">DroidNews</string>
     <string name="news_placeholder">News feature placeholder</string>
 </resources>

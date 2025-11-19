@@ -16,4 +16,9 @@ kotlin {
 
 dependencies {
     api(project(":common:kotlin"))
+
+    // Testing
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
 }

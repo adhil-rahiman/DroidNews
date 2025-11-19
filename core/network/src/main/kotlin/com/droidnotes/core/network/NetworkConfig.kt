@@ -1,7 +1,7 @@
 package com.droidnotes.core.network
 
 object NetworkConstant {
-    const val GNEWS_API_BASE_URL = "https://gnews.io/api/v4/"
+    const val GNEWS_API_BASE_URL = "https://gnews.io/api/"
 }
 
 data class NetworkConfig(

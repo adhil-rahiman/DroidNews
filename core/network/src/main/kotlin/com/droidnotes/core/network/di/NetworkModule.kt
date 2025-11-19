@@ -3,6 +3,7 @@ package com.droidnotes.core.network.di
 import com.droidnotes.core.network.ApiKeyProvider
 import com.droidnotes.core.network.BuildConfig
 import com.droidnotes.core.network.BuildConfigApiKeyProvider
+import com.droidnotes.core.network.GNewsApi
 import com.droidnotes.core.network.NetworkConstant
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Binds
@@ -72,6 +73,12 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGNewsApi(retrofit: Retrofit): GNewsApi {
+        return retrofit.create(GNewsApi::class.java)
     }
 }
 
