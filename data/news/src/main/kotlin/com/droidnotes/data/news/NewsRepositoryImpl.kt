@@ -6,7 +6,6 @@ import com.droidnotes.data.news.remote.NewsRemoteDataSource
 import com.droidnotes.domain.news.NewsRepository
 import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -88,6 +87,4 @@ class NewsRepositoryImpl @Inject constructor(
         }
     }
 
-    suspend fun getBookmarkedArticlesFlow(): Flow<List<Article>> =
-        localDataSource.getBookmarkedArticles()
 }

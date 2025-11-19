@@ -1,72 +1,67 @@
 package com.droidnotes.feature.news.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.droidnotes.common.AppResult
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import coil3.util.CoilUtils.result
 import com.droidnotes.domain.news.NewsRepository
+import com.droidnotes.domain.news.PagedNewsRepository
+import com.droidnotes.domain.news.model.Article
 import com.droidnotes.domain.news.model.Category
 import com.droidnotes.feature.news.ui.FeedUiState
-import com.droidnotes.feature.news.ui.NewsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository,
+    private val pagedNewsRepository: PagedNewsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FeedUiState())
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val articlesPagingFlow: Flow<PagingData<Article>> = _uiState
+        .flatMapLatest { state ->
+            Log.d("TestLogs", "articlesPagingFlow: state: ${state}")
+            pagedNewsRepository.topHeadlines(state.selectedCategory)
+        }
+        .cachedIn(viewModelScope)
+
     init {
-        loadTopHeadlines()
+        // Initialize with default category (null for all)
+        selectCategory(null)
     }
 
     fun selectCategory(category: Category?) {
         _uiState.update { it.copy(selectedCategory = category) }
-        loadTopHeadlines(category)
     }
 
-    fun refresh() {
-        _uiState.update { it.copy(isRefreshing = true) }
-        loadTopHeadlines(_uiState.value.selectedCategory)
+    fun setRefreshing(isRefreshing: Boolean) {
+        _uiState.update { it.copy(isRefreshing = isRefreshing) }
+        if (!isRefreshing) {
+            // Reset after a short delay to allow UI to show the refresh indicator
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(500)
+                _uiState.update { it.copy(isRefreshing = false) }
+            }
+        }
     }
 
     fun toggleBookmark(articleId: String) {
         viewModelScope.launch {
             newsRepository.toggleBookmark(articleId)
-            // Optionally refresh the current category to reflect bookmark changes
-            loadTopHeadlines(_uiState.value.selectedCategory)
-        }
-    }
-
-    private fun loadTopHeadlines(category: Category? = null) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(articlesState = NewsUiState.Loading) }
-
-            when (val result = newsRepository.topHeadlines(category)) {
-                is AppResult.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            articlesState = NewsUiState.Success(result.data),
-                            isRefreshing = false
-                        )
-                    }
-                }
-                is AppResult.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            articlesState = NewsUiState.Error(result.throwable.message ?: "Unknown error"),
-                            isRefreshing = false
-                        )
-                    }
-                }
-            }
         }
     }
 }

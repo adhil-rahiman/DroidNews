@@ -23,7 +23,8 @@ fun Article.toEntity(
         isBookmarked = isBookmarked,
         category = category,
         query = query,
-        page = page
+        page = page,
+        timestamp = System.currentTimeMillis()
     )
 }
 

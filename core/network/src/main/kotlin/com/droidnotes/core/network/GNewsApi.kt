@@ -13,7 +13,7 @@ interface GNewsApi {
     suspend fun getTopHeadlines(
         @Query("category") category: String? = null,
         @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 20,
+        @Query("pageSize") pageSize: Int = 5,
         @Query("lang") lang: String = "en"
     ): Response<TopHeadlinesResponse>
 
@@ -21,7 +21,7 @@ interface GNewsApi {
     suspend fun searchArticles(
         @Query("q") query: String,
         @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 20,
+        @Query("pageSize") pageSize: Int = 5,
         @Query("lang") lang: String = "en",
         @Query("sortby") sortBy: String = "publishedAt"
     ): Response<SearchResponse>

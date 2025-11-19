@@ -28,6 +28,11 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":common:kotlin"))
     implementation(project(":common:android"))
+
+    // Paging 3
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

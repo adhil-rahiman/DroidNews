@@ -1,37 +1,35 @@
 package com.droidnotes.feature.news.ui.feed
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.droidnotes.domain.news.model.Article
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.droidnotes.domain.news.model.Category
 import com.droidnotes.feature.news.R
-import com.droidnotes.feature.news.ui.FeedUiState
-import com.droidnotes.feature.news.ui.NewsUiState
 import com.droidnotes.feature.news.ui.components.ArticleCard
 import com.droidnotes.feature.news.ui.components.CategoryChips
 import com.droidnotes.feature.news.viewmodel.FeedViewModel
@@ -46,6 +44,8 @@ fun FeedScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
+    
+    var refreshCallback: (() -> Unit)? = null
 
     Scaffold(
         topBar = {
@@ -71,7 +71,10 @@ fun FeedScreen(
         PullToRefreshBox(
             state = pullToRefreshState,
             isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.refresh() },
+            onRefresh = { 
+                viewModel.setRefreshing(true)
+                refreshCallback?.invoke()
+            },
             modifier = Modifier.padding(padding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -82,67 +85,50 @@ fun FeedScreen(
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
-                when (val articlesState = uiState.articlesState) {
-                    is NewsUiState.Loading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
+                ArticlesPagingList(
+                    viewModel = viewModel,
+                    onArticleClick = onArticleClick,
+                    onRefreshRequested = { callback -> 
+                        refreshCallback = callback
                     }
-                    is NewsUiState.Success -> {
-                        ArticlesList(
-                            articles = articlesState.data,
-                            onArticleClick = onArticleClick,
-                            onBookmarkClick = { viewModel.toggleBookmark(it) }
-                        )
-                    }
-                    is NewsUiState.Error -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = articlesState.message,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    }
-                }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ArticlesList(
-    articles: List<Article>,
+private fun ArticlesPagingList(
+    viewModel: FeedViewModel,
     onArticleClick: (String) -> Unit,
-    onBookmarkClick: (String) -> Unit
+    onRefreshRequested: (() -> Unit) -> Unit
 ) {
-    if (articles.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "No articles found",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    } else {
-        LazyColumn(
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(articles) { article ->
+    val articlesPagingItems = viewModel.articlesPagingFlow.collectAsLazyPagingItems()
+
+    SideEffect {
+        Log.d("TestLogs", "articlesPagingItems: ${articlesPagingItems.itemCount}")
+    }
+
+    // Expose refresh function to parent
+    LaunchedEffect(Unit) {
+        onRefreshRequested { articlesPagingItems.refresh() }
+    }
+
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(
+            count = articlesPagingItems.itemCount,
+            key = articlesPagingItems.itemKey { it.id },
+            contentType = articlesPagingItems.itemContentType { "article" }
+        ) { index ->
+            val article = articlesPagingItems[index]
+            if (article != null) {
                 ArticleCard(
                     article = article,
                     onArticleClick = onArticleClick,
-                    onBookmarkClick = onBookmarkClick
+                    onBookmarkClick = { articleId -> viewModel.toggleBookmark(articleId) }
                 )
             }
         }

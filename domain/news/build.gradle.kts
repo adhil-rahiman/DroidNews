@@ -16,6 +16,8 @@ kotlin {
 
 dependencies {
     api(project(":common:kotlin"))
+    implementation(libs.androidx.paging.common)
+    implementation(libs.kotlinx.coroutines.core)
 
     // Testing
     testImplementation(libs.junit)

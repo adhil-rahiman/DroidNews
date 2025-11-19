@@ -1,5 +1,6 @@
 package com.droidnotes.core.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -26,11 +27,23 @@ interface ArticleDao {
     @Query("SELECT * FROM articles WHERE category = :category ORDER BY publishedAt DESC LIMIT :limit OFFSET :offset")
     suspend fun getArticlesByCategory(category: String?, limit: Int, offset: Int): List<ArticleEntity>
 
-    @Query("SELECT * FROM articles WHERE query = :query ORDER BY publishedAt DESC LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM articles WHERE `query` = :query ORDER BY publishedAt DESC LIMIT :limit OFFSET :offset")
     suspend fun getArticlesByQuery(query: String, limit: Int, offset: Int): List<ArticleEntity>
+
+    @Query("SELECT * FROM articles WHERE category = :category ORDER BY publishedAt DESC")
+    fun getPagedArticlesByCategory(category: String): PagingSource<Int, ArticleEntity>
+
+    @Query("SELECT * FROM articles ORDER BY publishedAt DESC")
+    fun getAllPagedArticles(): PagingSource<Int, ArticleEntity>
+
+    @Query("SELECT * FROM articles WHERE `query` = :query ORDER BY publishedAt DESC")
+    fun getPagedArticlesByQuery(query: String): PagingSource<Int, ArticleEntity>
 
     @Query("SELECT * FROM articles WHERE isBookmarked = 1 ORDER BY publishedAt DESC")
     fun getBookmarkedArticles(): Flow<List<ArticleEntity>>
+
+    @Query("SELECT * FROM articles WHERE isBookmarked = 1 ORDER BY publishedAt DESC")
+    fun getBookmarkedArticlesPaging(): PagingSource<Int, ArticleEntity>
 
     @Query("SELECT * FROM articles WHERE isBookmarked = 1 ORDER BY publishedAt DESC")
     suspend fun getBookmarkedArticlesSnapshot(): List<ArticleEntity>
@@ -44,6 +57,6 @@ interface ArticleDao {
     @Query("SELECT COUNT(*) FROM articles WHERE category = :category")
     suspend fun getArticleCountByCategory(category: String?): Int
 
-    @Query("SELECT COUNT(*) FROM articles WHERE query = :query")
+    @Query("SELECT COUNT(*) FROM articles WHERE `query` = :query")
     suspend fun getArticleCountByQuery(query: String): Int
 }

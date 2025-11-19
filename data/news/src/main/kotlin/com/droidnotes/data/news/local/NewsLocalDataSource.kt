@@ -2,7 +2,6 @@ package com.droidnotes.data.news.local
 
 import com.droidnotes.common.AppResult
 import com.droidnotes.core.database.dao.ArticleDao
-import com.droidnotes.core.database.model.ArticleEntity
 import com.droidnotes.data.news.mapper.toDomain
 import com.droidnotes.data.news.mapper.toEntity
 import com.droidnotes.domain.news.model.Article
@@ -15,8 +14,8 @@ import javax.inject.Inject
 
 interface NewsLocalDataSource {
     suspend fun insertArticles(articles: List<Article>, category: Category? = null, query: String? = null, page: Int = 1)
-    suspend fun getArticlesByCategory(category: Category?, page: Int = 1, pageSize: Int = 20): AppResult<List<Article>>
-    suspend fun getArticlesByQuery(query: String, page: Int = 1, pageSize: Int = 20): AppResult<List<Article>>
+    suspend fun getArticlesByCategory(category: Category?, page: Int = 1, pageSize: Int = 5): AppResult<List<Article>>
+    suspend fun getArticlesByQuery(query: String, page: Int = 1, pageSize: Int = 5): AppResult<List<Article>>
     suspend fun getArticleById(id: String): AppResult<Article?>
     fun getBookmarkedArticles(): Flow<List<Article>>
     suspend fun toggleBookmark(id: String): AppResult<Unit>
@@ -43,12 +42,12 @@ class NewsLocalDataSourceImpl @Inject constructor(
         page: Int,
         pageSize: Int
     ): AppResult<List<Article>> = withContext(ioDispatcher) {
-        runCatching {
+        try {
             val offset = (page - 1) * pageSize
             val entities = articleDao.getArticlesByCategory(category?.name, pageSize, offset)
             val articles = entities.map { it.toDomain() }
             AppResult.Success(articles)
-        }.getOrElse { throwable ->
+        } catch (throwable: Throwable) {
             AppResult.Error(throwable)
         }
     }
@@ -58,22 +57,22 @@ class NewsLocalDataSourceImpl @Inject constructor(
         page: Int,
         pageSize: Int
     ): AppResult<List<Article>> = withContext(ioDispatcher) {
-        runCatching {
+        try {
             val offset = (page - 1) * pageSize
             val entities = articleDao.getArticlesByQuery(query, pageSize, offset)
             val articles = entities.map { it.toDomain() }
             AppResult.Success(articles)
-        }.getOrElse { throwable ->
+        } catch (throwable: Throwable) {
             AppResult.Error(throwable)
         }
     }
 
     override suspend fun getArticleById(id: String): AppResult<Article?> = withContext(ioDispatcher) {
-        runCatching {
+        try {
             val entity = articleDao.getArticleById(id)
             val article = entity?.toDomain()
             AppResult.Success(article)
-        }.getOrElse { throwable ->
+        } catch (throwable: Throwable) {
             AppResult.Error(throwable)
         }
     }
@@ -84,7 +83,7 @@ class NewsLocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun toggleBookmark(id: String): AppResult<Unit> = withContext(ioDispatcher) {
-        runCatching {
+        try {
             val currentEntity = articleDao.getArticleById(id)
             if (currentEntity != null) {
                 val updatedEntity = currentEntity.copy(isBookmarked = !currentEntity.isBookmarked)
@@ -93,7 +92,7 @@ class NewsLocalDataSourceImpl @Inject constructor(
             } else {
                 AppResult.Error(Exception("Article not found"))
             }
-        }.getOrElse { throwable ->
+        } catch (throwable: Throwable) {
             AppResult.Error(throwable)
         }
     }

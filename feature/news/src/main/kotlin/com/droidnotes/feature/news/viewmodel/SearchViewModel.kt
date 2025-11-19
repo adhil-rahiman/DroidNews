@@ -2,90 +2,53 @@ package com.droidnotes.feature.news.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.droidnotes.common.AppResult
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.droidnotes.domain.news.NewsRepository
-import com.droidnotes.feature.news.ui.NewsUiState
-import com.droidnotes.feature.news.ui.SearchUiState
+import com.droidnotes.domain.news.PagedNewsRepository
+import com.droidnotes.domain.news.model.Article
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository,
+    private val pagedNewsRepository: PagedNewsRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SearchUiState())
-    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    init {
-        observeSearchQuery()
-    }
-
-    fun updateQuery(query: String) {
-        _uiState.update { it.copy(query = query) }
-    }
-
-    fun search(query: String) {
-        if (query.isBlank()) {
-            _uiState.update { it.copy(articlesState = NewsUiState.Success(emptyList())) }
-            return
-        }
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSearching = true, articlesState = NewsUiState.Loading) }
-
-            when (val result = newsRepository.search(query)) {
-                is AppResult.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            articlesState = NewsUiState.Success(result.data),
-                            isSearching = false
-                        )
-                    }
-                }
-                is AppResult.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            articlesState = NewsUiState.Error(result.throwable.message ?: "Search failed"),
-                            isSearching = false
-                        )
-                    }
-                }
+    val articlesPagingFlow: Flow<PagingData<Article>> = _searchQuery
+        .debounce(300L)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            if (query.isBlank()) {
+                flowOf(PagingData.empty())
+            } else {
+                pagedNewsRepository.search(query)
             }
         }
+        .cachedIn(viewModelScope)
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
     }
 
     fun toggleBookmark(articleId: String) {
         viewModelScope.launch {
             newsRepository.toggleBookmark(articleId)
-            // Refresh current search results to reflect bookmark changes
-            val currentQuery = _uiState.value.query
-            if (currentQuery.isNotBlank()) {
-                search(currentQuery)
-            }
         }
-    }
-
-    @OptIn(FlowPreview::class)
-    private fun observeSearchQuery() {
-        _uiState
-            .map { it.query }
-            .distinctUntilChanged()
-            .debounce(500) // Wait 500ms after user stops typing
-            .filter { it.isNotBlank() }
-            .onEach { query -> search(query) }
-            .launchIn(viewModelScope)
     }
 }
