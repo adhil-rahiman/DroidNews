@@ -44,52 +44,6 @@ API_BASE_URL=https://gnews.io/api/v4/
 ./gradlew installDebug
 ```
 
-## Modules
-
-```
-app/                    # Main app, Hilt setup, WorkManager
-├── feature/
-│   └── news/          # UI screens, ViewModels, navigation
-├── domain/
-│   └── news/          # Business logic, use cases, models
-├── data/
-│   └── news/          # Repository, data sources, paging
-├── core/
-│   ├── network/       # Retrofit, API, interceptors
-│   ├── database/      # Room, DAOs, entities
-│   └── ui/            # Theme, shared components, error handling
-└── common/
-    ├── kotlin/        # Shared utilities, Result wrapper
-    └── android/       # Android utilities
-```
-
-## Module Dependencies
-
-```
-app
- ├─> feature/news
- │    ├─> domain/news
- │    ├─> data/news
- │    └─> core/ui
- ├─> data/news
- │    ├─> domain/news
- │    ├─> core/network
- │    ├─> core/database
- │    └─> common/kotlin
- ├─> core/network
- │    └─> common/kotlin
- ├─> core/database
- │    └─> domain/news
- └─> core/ui
-      └─> common/kotlin
-```
-
-**Dependency Rules**
-- `domain` has no dependencies (pure Kotlin)
-- `data` depends on `domain` + `core`
-- `feature` depends on `domain` + `data` + `core/ui`
-- `app` wires everything together
-
 ## Features
 
 - Browse news by category
@@ -97,9 +51,10 @@ app
 - Bookmark articles
 - Offline caching (10 min expiry)
 - Pull-to-refresh
-- Background sync (every 5 min)
-- Deep links: `https://droidnews.app/article/{id}`
 - Error handling with retry
+- Background sync (every 5 min) - Not tested
+- Deep links: `https://droidnews.app/article/{id}` - Incomplete 
+
 
 ## Commands
 
@@ -112,6 +67,11 @@ app
 
 ## Configuration
 
+**API Endpoint** (`core/network/.../NetworkConstant.kt`)
+```kotlin
+GNEWS_API_BASE_URL = "https://gnews.io/api/v4/"
+```
+
 **Background Work** (`app/src/.../work/WorkConfig.kt`)
 ```kotlin
 NEWS_REFRESH_INTERVAL_MINUTES = 5L    # Refresh interval
@@ -119,10 +79,6 @@ CACHE_EXPIRY_MINUTES = 10L            # Cache expiry
 BREAKING_NEWS_INTERVAL_HOURS = 2L     # Notification interval
 ```
 
-**API Endpoint** (`core/network/.../NetworkConstant.kt`)
-```kotlin
-GNEWS_API_BASE_URL = "https://gnews.io/api/v4/"
-```
 
 ## Troubleshooting
 
