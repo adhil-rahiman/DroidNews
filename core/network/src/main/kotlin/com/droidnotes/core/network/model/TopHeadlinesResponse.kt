@@ -1,6 +1,5 @@
 package com.droidnotes.core.network.model
 
-import android.R.attr.data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
