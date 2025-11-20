@@ -43,7 +43,9 @@ Create `local.properties` in project root:
 NEWS_API_KEY=your_api_key_here
 API_BASE_URL=https://gnews.io/api/v4/
 ```
-```Sample API KEY (use this for testing)
+
+Sample API KEY (use this for testing)
+```API KEY
 72d2e8e1758351728a59981d97360e19
 ```
 
