@@ -1,6 +1,5 @@
 package com.droidnotes.data.news.dataSource.paging
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -8,8 +7,8 @@ import androidx.paging.RemoteMediator
 import com.droidnotes.common.AppResult
 import com.droidnotes.core.database.dao.ArticleDao
 import com.droidnotes.core.database.model.ArticleEntity
-import com.droidnotes.data.news.mapper.toEntity
 import com.droidnotes.data.news.dataSource.remote.NewsRemoteDataSource
+import com.droidnotes.data.news.mapper.toEntity
 import com.droidnotes.domain.news.model.Category
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
@@ -66,14 +65,8 @@ class NewsRemoteMediator @Inject constructor(
                 else -> {
                     // Get top headlines by category
                     when (val result = remoteDataSource.getTopHeadlines(category, page)) {
-                        is AppResult.Success -> {
-                            Log.d("TestLogs", "Success result: ${result.data}")
-                            result.data
-                        }
-                        is AppResult.Error -> {
-                            Log.d("TestLogs", "Error result: ${result.throwable}")
-                            return@withContext MediatorResult.Error(result.throwable)
-                            }
+                        is AppResult.Success -> result.data
+                        is AppResult.Error -> return@withContext MediatorResult.Error(result.throwable)
                     }
                 }
             }
