@@ -2,6 +2,11 @@
 
 Android news app with clean architecture and Jetpack Compose.
 
+## Demo
+
+https://github.com/user-attachments/assets/9bcea6ea-7f09-4bb6-8c32-47c476f1350d
+
+
 ## Tech Stack
 
 **Language & UI**
