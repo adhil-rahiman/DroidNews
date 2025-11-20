@@ -1,4 +1,4 @@
-package com.droidnotes.droidnews.work
+package com.droidnotes.feature.news.work
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -28,7 +28,7 @@ class NewsRefreshWorker @AssistedInject constructor(
             newsRepository.clearExpiredCache(
                 cacheDurationMs = TimeUnit.MINUTES.toMillis(cacheExpiryMinutes)
             )
-            
+
             when (val result = newsRepository.refreshAllCategories(clearCache = false)) {
                 is AppResult.Success -> Result.success()
                 is AppResult.Error -> Result.retry()

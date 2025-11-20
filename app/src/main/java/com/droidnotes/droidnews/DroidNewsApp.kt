@@ -3,7 +3,7 @@ package com.droidnotes.droidnews
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.droidnotes.droidnews.work.WorkManagerScheduler
+import com.droidnotes.feature.news.work.WorkManagerScheduler
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 

@@ -1,11 +1,10 @@
-package com.droidnotes.droidnews.work
+package com.droidnotes.feature.news.work
 
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,7 +16,7 @@ import javax.inject.Singleton
 class WorkManagerScheduler @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val workManager = WorkManager.getInstance(context)
+    private val workManager = WorkManager.Companion.getInstance(context)
 
     fun scheduleNewsRefresh(
         refreshIntervalMinutes: Long = WorkConfig.NEWS_REFRESH_INTERVAL_MINUTES,
