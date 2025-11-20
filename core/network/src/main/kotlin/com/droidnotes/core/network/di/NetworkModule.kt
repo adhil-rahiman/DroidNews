@@ -5,6 +5,7 @@ import com.droidnotes.core.network.BuildConfig
 import com.droidnotes.core.network.BuildConfigApiKeyProvider
 import com.droidnotes.core.network.GNewsApi
 import com.droidnotes.core.network.NetworkConstant
+import com.droidnotes.core.network.interceptor.NetworkErrorInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Binds
 import dagger.Module
@@ -36,7 +37,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(apiKeyProvider: ApiKeyProvider): OkHttpClient {
+    fun provideOkHttpClient(
+        apiKeyProvider: ApiKeyProvider,
+        networkErrorInterceptor: NetworkErrorInterceptor
+    ): OkHttpClient {
         val apiKeyInterceptor = Interceptor { chain ->
             val original = chain.request()
             val originalHttpUrl = original.url
@@ -53,6 +57,7 @@ object NetworkModule {
         }
 
         return OkHttpClient.Builder()
+            .addInterceptor(networkErrorInterceptor)
             .addInterceptor(apiKeyInterceptor)
             .apply {
                 if (BuildConfig.DEBUG) {

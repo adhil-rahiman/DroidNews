@@ -54,7 +54,7 @@ class ArticleDetailViewModel @Inject constructor(
                 }
                 is AppResult.Error -> {
                     _uiState.update {
-                        ArticleDetailUiState.Error(result.throwable.message ?: "Failed to load article")
+                        ArticleDetailUiState.Error(result.exception.message ?: "Failed to load article")
                     }
                 }
             }

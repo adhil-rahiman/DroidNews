@@ -59,14 +59,14 @@ class NewsRemoteMediator @Inject constructor(
                     // Search articles
                     when (val result = remoteDataSource.searchArticles(query, page)) {
                         is AppResult.Success -> result.data
-                        is AppResult.Error -> return@withContext MediatorResult.Error(result.throwable)
+                        is AppResult.Error -> return@withContext MediatorResult.Error(result.exception)
                     }
                 }
                 else -> {
                     // Get top headlines by category
                     when (val result = remoteDataSource.getTopHeadlines(category, page)) {
                         is AppResult.Success -> result.data
-                        is AppResult.Error -> return@withContext MediatorResult.Error(result.throwable)
+                        is AppResult.Error -> return@withContext MediatorResult.Error(result.exception)
                     }
                 }
             }

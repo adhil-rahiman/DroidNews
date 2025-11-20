@@ -19,16 +19,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -39,6 +40,8 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.droidnotes.common.AppResult
+import com.droidnotes.core.ui.error.ErrorHandler
 import com.droidnotes.domain.news.model.Category
 import com.droidnotes.feature.news.R
 import com.droidnotes.feature.news.ui.components.ArticleCard
@@ -54,6 +57,8 @@ fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -74,6 +79,9 @@ fun FeedScreen(
                     }
                 }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { padding ->
         Column(
@@ -91,7 +99,9 @@ fun FeedScreen(
             ArticlesPagingList(
                 viewModel = viewModel,
                 uiState = uiState,
-                onArticleClick = onArticleClick
+                onArticleClick = onArticleClick,
+                snackbarHostState = snackbarHostState,
+                scope = scope
             )
         }
     }
@@ -101,7 +111,9 @@ fun FeedScreen(
 private fun ArticlesPagingList(
     viewModel: FeedViewModel,
     uiState: com.droidnotes.feature.news.ui.FeedUiState,
-    onArticleClick: (String) -> Unit
+    onArticleClick: (String) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    scope: kotlinx.coroutines.CoroutineScope
 ) {
     val articlesPagingItems = viewModel.articlesPagingFlow.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
@@ -114,6 +126,34 @@ private fun ArticlesPagingList(
     val loadState = articlesPagingItems.loadState
     val isRefreshing = loadState.refresh is LoadState.Loading && articlesPagingItems.itemCount > 0
 
+    LaunchedEffect(loadState.refresh) {
+        if (loadState.refresh is LoadState.Error) {
+            val error = (loadState.refresh as LoadState.Error).error
+            if (error is Exception) {
+                ErrorHandler.handleError(
+                    error = AppResult.Error(error),
+                    snackbarHostState = snackbarHostState,
+                    scope = scope,
+                    onRetry = { articlesPagingItems.retry() }
+                )
+            }
+        }
+    }
+
+    LaunchedEffect(loadState.append) {
+        if (loadState.append is LoadState.Error) {
+            val error = (loadState.append as LoadState.Error).error
+            if (error is Exception) {
+                ErrorHandler.handleError(
+                    error = AppResult.Error(error),
+                    snackbarHostState = snackbarHostState,
+                    scope = scope,
+                    onRetry = { articlesPagingItems.retry() }
+                )
+            }
+        }
+    }
+
     // Handle different states
     when {
         // Initial loading state
@@ -124,11 +164,10 @@ private fun ArticlesPagingList(
         }
         // Error state
         loadState.refresh is LoadState.Error && articlesPagingItems.itemCount == 0 -> {
-            val error = (loadState.refresh as LoadState.Error).error
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Error: ${error.message}",
+                        text = "Unable to load articles",
                         color = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(8.dp))

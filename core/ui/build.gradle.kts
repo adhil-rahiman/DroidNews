@@ -20,6 +20,9 @@ android {
 }
 
 dependencies {
+    // Common utilities
+    implementation(project(":common:android"))
+    implementation(project(":common:kotlin"))
     coreLibraryDesugaring(libs.desugar)
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)
